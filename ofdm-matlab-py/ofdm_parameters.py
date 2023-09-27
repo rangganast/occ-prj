@@ -1,5 +1,6 @@
 import os
 import math
+import numpy as np
 
 def ofdm_params():
     file_in = "";
@@ -64,8 +65,8 @@ def ofdm_params():
     midFreq = ifft_size / 4
     first_carrier = midFreq - round((carrier_count - 1) * spacing / 2)
     last_carrier = midFreq + int((carrier_count - 1) * spacing / 2)
-    carriers = [first_carrier + i for i in range(0, carrier_count * spacing, spacing)]
-    conj_carriers = [int(ifft_size - c + 2) for c in carriers]
+    carriers = np.array([first_carrier + i for i in range(0, carrier_count * spacing, spacing)], dtype=int)
+    conj_carriers = np.array([int(ifft_size - c + 2) for c in carriers], dtype=int)
 
     return (
         carrier_count,

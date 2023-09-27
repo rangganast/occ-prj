@@ -41,8 +41,8 @@ baseband_tx = double(x);
   
 % convert original data word size (bits/word) to symbol size (bits/symbol) 
 % symbol size (bits/symbol) is determined by choice of modulation method 
-baseband_tx = ofdm_base_convert(baseband_tx, word_size, symb_size); 
-  
+baseband_tx = ofdm_base_convert(baseband_tx, word_size, symb_size);
+
 % save original baseband data for error calculation later 
 save('err_calc.mat', 'baseband_tx'); 
  
@@ -75,12 +75,14 @@ if (symb_per_carrier > symb_per_frame)  % === multiple frames === %
         % OFDM modulation 
         time_signal_tx = ofdm_modulate(frame_data,ifft_size,carriers,... 
             conj_carriers, carrier_count, symb_size, guard_time, fig); 
-        fig = 0; %indicate that ofdm_modulate() has already generated plots 
+        fig = 0; %indicate that ofdm_modulate() has already generated plots
+        
   
         % add a frame guard to each frame of modulated signal 
         time_wave_tx = [time_wave_tx frame_guard time_signal_tx]; 
         frame_power = var(time_signal_tx); 
     end 
+    fprintf("=======================time_signal_tx======================\n")
     % scale the header to match signal level 
     power = power + frame_power; 
     % The OFDM modulated signal for transmission 

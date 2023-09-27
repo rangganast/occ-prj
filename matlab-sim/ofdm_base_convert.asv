@@ -10,6 +10,7 @@ function data_out = ofdm_base_convert(data_in, base, new_base)
     % Convert base to binary
     for k = 1:base
         binary_matrix(k, :) = floor(data_in / 2^(base - k));
+        disp(binary_matrix)
         data_in = rem(data_in, 2^(base - k));
     end
     
@@ -18,8 +19,12 @@ function data_out = ofdm_base_convert(data_in, base, new_base)
     
     % Convert binary to the new base
     data_out = zeros(1, size(newbase_matrix, 2));
-
+    fprintf("data out before")
+    disp(data_out)
     for k = 1:new_base
         data_out = data_out + newbase_matrix(k, :) * (2^(new_base - k));
     end
+    
+    fprintf("data out after")
+    disp(data_out)
 end

@@ -27,19 +27,18 @@ function signal_tx = ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, 
     % PSK (Phase Shift Keying) modulation
     [X, Y] = pol2cart(data_tx_matrix * (2*pi / (2^symb_size)), ones(size(data_tx_matrix)));
     complex_matrix = X + 1i * Y;
-    fprintf("complex_matrix\n");
-    disp(complex_matrix);
 
     % Assign IFFT bins to carriers and imaged carriers
     spectrum_tx = zeros(carrier_symb_count, ifft_size);
-    %fprintf('spectrum_tx line 1\n');
-    %disp(spectrum_tx);
+    fprintf('spectrum_tx line 1\n');
+    disp(spectrum_tx);
     spectrum_tx(:, carriers) = complex_matrix;
+    disp(spectr)
     %fprintf('spectrum_tx line 2\n');
     %disp(spectrum_tx);
     spectrum_tx(:, conj_carriers) = conj(complex_matrix);
-    fprintf('spectrum_tx line 3\n');
-    disp(spectrum_tx);    
+    %fprintf('spectrum_tx line 3\n');
+    %disp(spectrum_tx);    
 
     % Plot OFDM Carriers on IFFT bins
     if fig == 1
