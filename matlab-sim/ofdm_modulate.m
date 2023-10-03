@@ -27,19 +27,11 @@ function signal_tx = ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, 
     % PSK (Phase Shift Keying) modulation
     [X, Y] = pol2cart(data_tx_matrix * (2*pi / (2^symb_size)), ones(size(data_tx_matrix)));
     complex_matrix = X + 1i * Y;
-    fprintf("complex_matrix\n");
-    disp(complex_matrix);
 
     % Assign IFFT bins to carriers and imaged carriers
     spectrum_tx = zeros(carrier_symb_count, ifft_size);
-    %fprintf('spectrum_tx line 1\n');
-    %disp(spectrum_tx);
     spectrum_tx(:, carriers) = complex_matrix;
-    %fprintf('spectrum_tx line 2\n');
-    %disp(spectrum_tx);
-    spectrum_tx(:, conj_carriers) = conj(complex_matrix);
-    fprintf('spectrum_tx line 3\n');
-    disp(spectrum_tx);    
+    spectrum_tx(:, conj_carriers) = conj(complex_matrix); 
 
     % Plot OFDM Carriers on IFFT bins
     if fig == 1
@@ -65,6 +57,8 @@ function signal_tx = ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, 
 
     % Obtain time wave from spectra using IFFT
     signal_tx = real(ifft(spectrum_tx'))';
+    %fprintf("signal_tx_1\n");
+    %disp(signal_tx);
 
     % Plot time signals
     if fig == 1
@@ -94,9 +88,11 @@ function signal_tx = ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, 
 
     % Add a periodic guard time
     end_symb = size(signal_tx, 2);  % end of a symbol period without guard
-    signal_tx = [signal_tx(:, (end_symb - guard_time + 1):end_symb) signal_tx];
+    signal_tx = [signal_tx(:, (end_symb - guard_time + 1):end_symb) signal_tx];    
 
     % Parallel to serial
     signal_tx = signal_tx';  % MATLAB's reshape goes along with columns
     signal_tx = reshape(signal_tx, 1, size(signal_tx, 1) * size(signal_tx, 2));
+    fprintf('signal_tx_last');
+    disp(signal_tx);
 end

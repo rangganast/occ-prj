@@ -34,7 +34,6 @@ def ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, carrier_count, sy
     spectrum_tx = np.zeros((ifft_size, carrier_symb_count), dtype=complex)
     spectrum_tx[carriers[0]:carriers[-1]+1, :] = complex_matrix  
     spectrum_tx[conj_carriers[-1]-2:conj_carriers[0]-1, :] = np.conjugate(complex_matrix)
-    # safe until here
 
     # if fig == 1:
     #     plt.figure(1)
@@ -55,8 +54,8 @@ def ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, carrier_count, sy
     #     plt.ylabel('Phase (degree)')
     #     plt.xlabel('IFFT Bin')
     #     plt.title('Phases of the OFDM modulated data')
-
-    # signal_tx = np.real(np.fft.ifft(spectrum_tx.T).T)
+    
+    signal_tx = np.real(np.fft.ifft(spectrum_tx.T)).T
 
     # if fig == 1:
     #     limt = 1.1 * np.max(np.abs(np.reshape(signal_tx, (1, signal_tx.size))))
@@ -79,10 +78,10 @@ def ofdm_modulate(data_tx, ifft_size, carriers, conj_carriers, carrier_count, sy
     #     plt.xlabel('Time')
     #     plt.title('Samples of OFDM Time Signals over one symbol period')
 
-    # # Add a periodic guard time
-    # end_symb = signal_tx.shape[1]
-    # signal_tx = np.concatenate((signal_tx[:, end_symb - guard_time:end_symb], signal_tx), axis=1)
+    # Add a periodic guard time
+    end_symb = signal_tx.shape[0]
+    signal_tx = np.concatenate((signal_tx[-int(guard_time):int(end_symb)], signal_tx))
+    signal_tx = np.reshape(signal_tx.T, (1, signal_tx.size))
+    # safe until here
 
-    # signal_tx = np.reshape(signal_tx.T, (1, signal_tx.size))
-
-    # return signal_tx
+    return signal_tx
