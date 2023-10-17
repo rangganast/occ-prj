@@ -31,14 +31,16 @@ def ofdm_sim():
     header = np.sin(np.arange(0, f * 2 * np.pi * head_len, f * 2 * np.pi))
     f = f / (np.pi * 2 / 3)
     header = header + np.sin(np.arange(0, f * 2 * np.pi * head_len, f * 2 * np.pi))
+    with open('header.txt', 'w') as f:
+        f.write(str(header))
 
     # arrange data into frames and transmit
-    frame_guard = np.zeros((1, int(symb_period)), dtype=int)
+    frame_guard = np.zeros((1, int(symb_period)), dtype=int)[0]
     time_wave_tx = np.array([])
     symb_per_carrier = np.ceil(len(baseband_tx) / carrier_count)
     fig = 1
 
-    if symb_per_carrier > symb_per_frame:
+    if symb_per_carrier > symb_per_frame: # if version still not been fixed since there is no sample
         power = 0
 
         while len(baseband_tx) > 0:
@@ -56,10 +58,20 @@ def ofdm_sim():
         power = power + frame_power
         time_wave_tx = np.concatenate((power * header, time_wave_tx, frame_guard, power * header))
     else:
-        time_signal_tx = ofdm_modulate(baseband_tx, ifft_size, carriers, conj_carriers, carrier_count, symb_size, guard_time, fig)
+        time_signal_tx = ofdm_modulate(baseband_tx, ifft_size, carriers, conj_carriers, carrier_count, symb_size, guard_time, fig)[0]
         power = np.var(time_signal_tx)
         time_wave_tx = np.concatenate((power * header, frame_guard, time_signal_tx, frame_guard, power * header))
 
+    # Show summary of the OFDM transmission modelling
+
+    # ####################################################### # 
+    # **************** COMMUNICATION CHANNEL **************** #
+    # ####################################################### # 
+
+    # ===== signal clipping ===== # 
+    clipped_peak = (10**(0-(clipping/20))) * max(abs(time_wave_tx))
+    indices = np.where(np.abs(time_wave_tx) >= clipped_peak)
+    time_wave_tx[indices] = (clipped_peak * time_wave_tx[indices]) / np.abs(time_wave_tx[indices])
 
 if __name__  == "__main__" :
     ofdm_sim()
