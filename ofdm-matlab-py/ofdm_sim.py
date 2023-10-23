@@ -16,12 +16,6 @@ def ofdm_sim():
     img_flattened = img_transposed.flatten()
     baseband_tx = img_flattened.astype(np.float64)
 
-    ######################## ORIGINAL LINES ###############################################
-    # img_transposed = np.transpose(img, (1, 0, 2))
-    # img_flattened = img_transposed.reshape(1, -1)
-    # baseband_tx = img_flattened.astype(np.float64)
-    ######################## ORIGINAL LINES ###############################################
-
     baseband_tx = ofdm_base_convert(baseband_tx, word_size, symb_size)
     
     ##################################################### OFDM TRANSMITTER ##################################################################
@@ -31,8 +25,6 @@ def ofdm_sim():
     header = np.sin(np.arange(0, f * 2 * np.pi * head_len, f * 2 * np.pi))
     f = f / (np.pi * 2 / 3)
     header = header + np.sin(np.arange(0, f * 2 * np.pi * head_len, f * 2 * np.pi))
-    with open('header.txt', 'w') as f:
-        f.write(str(header))
 
     # arrange data into frames and transmit
     frame_guard = np.zeros((1, int(symb_period)), dtype=int)[0]
@@ -72,6 +64,48 @@ def ofdm_sim():
     clipped_peak = (10**(0-(clipping/20))) * max(abs(time_wave_tx))
     indices = np.where(np.abs(time_wave_tx) >= clipped_peak)
     time_wave_tx[indices] = (clipped_peak * time_wave_tx[indices]) / np.abs(time_wave_tx[indices])
+
+    # ===== channel noise ===== #
+    power = np.var(time_wave_tx)
+    SNR_linear = 10**(SNR_db/10)
+    noise_factor = np.sqrt(power/SNR_linear)
+    noise = np.random.randn(1, len(time_wave_tx)) * noise_factor
+    time_wave_rx = time_wave_tx + noise
+
+    # show summary of the OFDM channel modeling
+    # print(np.abs(time_wave_rx[int(head_len):len(time_wave_tx) - int(head_len)]))
+    # peak = np.max(np.abs(time_wave_rx[int(head_len):len(time_wave_tx) - int(head_len)]))
+    # with open("peak.txt", "w") as f:
+    #     f.write(str(peak))
+    # sig_rms = np.max(np.abs(time_wave_rx[head_len:(len(time_wave_tx)-head_len)]))
+
+    # ####################################################### # 
+    # ******************** OFDM RECEIVER ******************** #
+    # ####################################################### # 
+
+    time_wave_rx = time_wave_tx.T
+
+    end_x = len(time_wave_rx)
+    start_x = 1
+    data = []
+    phase = []
+    last_frame = 0
+    unpad = 0
+    w = 16
+    h = 16
+    if w*h % carrier_count != 0:
+        unpad = carrier_count - (w*h % carrier_count)
+
+    num_frame = np.ceil((h*w) * (word_size/symb_size)/(symb_per_frame*carrier_count))
+    fig = 0
+
+    for k in range(len(num_frame+1)):
+        if k == 0 or k == num_frame or k % np.max(np.floor(num_frame / 10), 1) == 0:
+            print(f"Demodulating Frame #{k}")
+
+        if k == 1:
+            # time_wave = time_wave
+            pass
 
 if __name__  == "__main__" :
     ofdm_sim()
